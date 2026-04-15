@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editor</title>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at top, #0f172a, #020617);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            width: 60%;
+            max-width: 850px;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 40px rgba(56,189,248,0.15);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #38bdf8;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        textarea {
+            width: 100%;
+            height: 350px;
+            background: #020617;
+            border-radius: 10px;
+            padding: 15px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+            outline: none;
+        }
+
+        .bottom {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .live {
+            color: #22c55e;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>📝 Editor</h2>
+
+    <input id="title" placeholder="Enter title...">
+
+    <textarea id="editor"></textarea>
+
+    <div class="bottom">
+        <span class="live">● Live Sync</span>
+        <span id="timestamp"></span>
+    </div>
+</div>
+
+<script>
+const noteId = {{note_id}};
+let lastContent = "";
+
+// Fetch updates
+setInterval(() => {
+    fetch(`/get_note/${noteId}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.content !== lastContent) {
+            document.getElementById("editor").value = data.content;
+            document.getElementById("title").value = data.title;
+            document.getElementById("timestamp").innerText = data.last_updated;
+            lastContent = data.content;
+        }
+    });
+}, 2000);
+
+// Save content
+document.getElementById("editor").addEventListener("input", () => {
+    const content = document.getElementById("editor").value;
+    lastContent = content;
+
+    fetch(`/update_note/${noteId}`, {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `content=${encodeURIComponent(content)}`
+    });
+});
+
+// Rename
+document.getElementById("title").addEventListener("input", () => {
+    const title = document.getElementById("title").value;
+
+    fetch(`/rename/${noteId}`, {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `title=${encodeURIComponent(title)}`
+    });
+});
+</script>
+
+</body>
+</html>
