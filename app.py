@@ -1,12 +1,15 @@
 from flask import Flask, render_template, request, redirect, jsonify
 import sqlite3
 import datetime
+import os
 
 app = Flask(__name__)
 
-# ---------- DATABASE ----------
+# ---------- DATABASE PATH (Render-safe) ----------
+DB_PATH = os.environ.get("DB_PATH", "/tmp/notes.db")
+
 def get_db():
-    conn = sqlite3.connect("notes.db")
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -36,14 +39,17 @@ def index():
 
 @app.route('/create', methods=['POST'])
 def create():
-    conn = get_db()
-    conn.execute(
-        "INSERT INTO notes (title, content, last_updated) VALUES (?, ?, ?)",
-        ("Untitled Note", "Start editing...", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    )
-    conn.commit()
-    conn.close()
-    return redirect('/')
+    try:
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO notes (title, content, last_updated) VALUES (?, ?, ?)",
+            ("Untitled Note", "Start editing...", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        )
+        conn.commit()
+        conn.close()
+        return redirect('/')
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 @app.route('/note/<int:note_id>')
 def note(note_id):
@@ -96,7 +102,6 @@ def delete(note_id):
     return redirect('/')
 
 # ---------- RUN ----------
-import os
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
