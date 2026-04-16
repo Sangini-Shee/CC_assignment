@@ -8,12 +8,10 @@ body {
     font-family:sans-serif;
     margin:0;
 }
-
 .header {
     text-align:center;
     padding:30px;
 }
-
 .note-card {
     background:#111;
     margin:20px auto;
@@ -34,13 +32,14 @@ body {
 <button>Create</button>
 </form>
 
-<input id="search" placeholder="Search...">
+<input id="search" placeholder="Search by title...">
 </div>
 
 {% for note in notes %}
 <div class="note-card">
 
-<input value="{{note.title}}" oninput="renameNote({{note.id}}, this.value)">
+<input class="title" value="{{note.title}}" oninput="renameNote({{note.id}}, this.value)">
+
 <p>{{note.last_updated}}</p>
 
 <a href="/note/{{note.id}}">Open</a>
@@ -53,6 +52,7 @@ body {
 {% endfor %}
 
 <script>
+// rename
 function renameNote(id, title) {
 fetch(`/rename/${id}`, {
 method:"POST",
@@ -61,14 +61,14 @@ body:`title=${encodeURIComponent(title)}`
 });
 }
 
-// ✅ FIXED SEARCH
+// 🔥 FINAL SEARCH FIX (WORKS PERFECTLY)
 document.getElementById("search").addEventListener("input", function(){
-let val = this.value.toLowerCase();
+let val = this.value.toLowerCase().trim();
 
 document.querySelectorAll(".note-card").forEach(card => {
-let text = card.innerText.toLowerCase();
+let title = card.querySelector(".title").value.toLowerCase();
 
-card.style.display = text.includes(val) ? "block" : "none";
+card.style.display = title.includes(val) ? "block" : "none";
 });
 });
 </script>

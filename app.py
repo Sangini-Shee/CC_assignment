@@ -37,7 +37,7 @@ def init_db():
 
 init_db()
 
-# AUTH
+# -------- AUTH --------
 
 @app.route('/signup', methods=['GET','POST'])
 def signup():
@@ -71,7 +71,7 @@ def logout():
     session.clear()
     return redirect('/login')
 
-# NOTES
+# -------- NOTES --------
 
 @app.route('/')
 def index():
@@ -79,17 +79,24 @@ def index():
         return redirect('/login')
 
     conn = get_db()
-    notes = conn.execute("SELECT * FROM notes WHERE user_id=?", (session['user_id'],)).fetchall()
+    notes = conn.execute(
+        "SELECT * FROM notes WHERE user_id=? ORDER BY id DESC",
+        (session['user_id'],)
+    ).fetchall()
     conn.close()
 
     return render_template('index.html', notes=notes)
 
 @app.route('/create', methods=['POST'])
 def create():
+    if 'user_id' not in session:
+        return redirect('/login')
+
     conn = get_db()
     conn.execute(
         "INSERT INTO notes (user_id,title,content,last_updated) VALUES (?,?,?,?)",
-        (session['user_id'], "Untitled Note", "Start editing...", datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        (session['user_id'], "Untitled Note", "Start editing...",
+         datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     )
     conn.commit()
     conn.close()
@@ -97,6 +104,8 @@ def create():
 
 @app.route('/note/<int:note_id>')
 def note(note_id):
+    if 'user_id' not in session:
+        return redirect('/login')
     return render_template('note.html', note_id=note_id)
 
 @app.route('/get_note/<int:note_id>')
@@ -115,8 +124,10 @@ def get_note(note_id):
 def update_note(note_id):
     content = request.form['content']
     conn = get_db()
-    conn.execute("UPDATE notes SET content=?,last_updated=? WHERE id=?",
-                 (content, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), note_id))
+    conn.execute(
+        "UPDATE notes SET content=?, last_updated=? WHERE id=?",
+        (content, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), note_id)
+    )
     conn.commit()
     conn.close()
     return "OK"
@@ -138,7 +149,7 @@ def delete(note_id):
     conn.close()
     return redirect('/')
 
-# EXPORT
+# -------- EXPORT --------
 
 @app.route('/export/<int:note_id>')
 def export(note_id):
@@ -148,11 +159,13 @@ def export(note_id):
 
     content = note["title"] + "\n\n" + note["content"]
 
-    return Response(content,
+    return Response(
+        content,
         mimetype="text/plain",
-        headers={"Content-Disposition": f"attachment;filename=note_{note_id}.txt"})
+        headers={"Content-Disposition": f"attachment;filename=note_{note_id}.txt"}
+    )
 
-# RUN
+# -------- RUN --------
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
