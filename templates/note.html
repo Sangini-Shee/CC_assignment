@@ -1,18 +1,53 @@
 <!DOCTYPE html>
 <html>
-<body style="background:#020617;color:white;text-align:center;">
+<head>
+<style>
+body {
+    background: radial-gradient(circle at top, #0f172a, #020617);
+    color: white;
+    font-family: sans-serif;
+    text-align: center;
+}
 
-<h2>Editor</h2>
+.title {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    width: 300px;
+    margin-bottom: 15px;
+}
 
-<input id="title">
+textarea {
+    width: 80%;
+    height: 450px;
+    border-radius: 12px;
+    border: none;
+    padding: 15px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
 
-<br><br>
+.download {
+    margin-top: 20px;
+    display: inline-block;
+    color: #38bdf8;
+}
+</style>
+</head>
 
-<textarea id="editor" style="width:70%;height:400px;"></textarea>
+<body>
 
-<br><br>
+<h2>📝 Editor</h2>
 
-<a id="download">Download</a>
+<input id="title" class="title">
+
+<br>
+
+<textarea id="editor"></textarea>
+
+<br>
+
+<a id="download" class="download">Download</a>
 
 <script>
 const noteId = {{note_id}};

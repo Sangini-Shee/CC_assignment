@@ -1,24 +1,122 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Notes</title>
+
 <style>
 body {
-    background:#020617;
-    color:white;
-    font-family:sans-serif;
-    margin:0;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top, #0f172a, #020617);
+    color: white;
 }
+
+/* HEADER */
 .header {
-    text-align:center;
-    padding:30px;
+    text-align: center;
+    padding: 40px 20px;
 }
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.create-btn {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    border: none;
+    padding: 12px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    transition: 0.3s;
+}
+
+.create-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(56,189,248,0.6);
+}
+
+.search {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    width: 260px;
+    outline: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+/* GRID */
+.container {
+    display: flex;
+    justify-content: center;
+}
+
+.notes-grid {
+    width: 80%;
+    max-width: 900px;
+}
+
+/* NOTE CARD */
 .note-card {
-    background:#111;
-    margin:20px auto;
-    padding:20px;
-    width:60%;
-    border-radius:10px;
-    text-align:center;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(12px);
+    margin: 20px;
+    padding: 25px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transition: 0.3s;
+}
+
+.note-card:hover {
+    transform: translateY(-5px) scale(1.01);
+}
+
+/* INPUT */
+.title {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    width: 250px;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    text-align: center;
+}
+
+/* BUTTONS */
+.open {
+    color: #38bdf8;
+    text-decoration: none;
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.delete {
+    background: #ef4444;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    color: white;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.delete:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+}
+
+/* NO RESULTS */
+#noResults {
+    text-align: center;
+    margin-top: 20px;
+    opacity: 0.7;
 }
 </style>
 </head>
@@ -26,30 +124,40 @@ body {
 <body>
 
 <div class="header">
-<h1>🚀 Notes</h1>
+    <h1>🚀 Notes</h1>
 
-<form action="/create" method="post">
-<button>Create</button>
-</form>
+    <form action="/create" method="post">
+        <button class="create-btn">+ Create Note</button>
+    </form>
 
-<input id="search" placeholder="Search by title...">
+    <input id="search" class="search" placeholder="Search notes...">
 </div>
+
+<div class="container">
+<div class="notes-grid">
 
 {% for note in notes %}
 <div class="note-card">
 
-<input class="title" value="{{note.title}}" oninput="renameNote({{note.id}}, this.value)">
+    <input class="title"
+           value="{{note.title}}"
+           oninput="renameNote({{note.id}}, this.value)">
 
-<p>{{note.last_updated}}</p>
+    <p>{{note.last_updated}}</p>
 
-<a href="/note/{{note.id}}">Open</a>
+    <a class="open" href="/note/{{note.id}}">Open</a>
 
-<form action="/delete/{{note.id}}" method="post">
-<button>Delete</button>
-</form>
+    <form action="/delete/{{note.id}}" method="post">
+        <button class="delete">Delete</button>
+    </form>
 
 </div>
 {% endfor %}
+
+<p id="noResults" style="display:none;">No notes found</p>
+
+</div>
+</div>
 
 <script>
 // rename
@@ -61,15 +169,23 @@ body:`title=${encodeURIComponent(title)}`
 });
 }
 
-// 🔥 FINAL SEARCH FIX (WORKS PERFECTLY)
+// 🔥 IMPROVED SEARCH
 document.getElementById("search").addEventListener("input", function(){
 let val = this.value.toLowerCase().trim();
+let visible = false;
 
 document.querySelectorAll(".note-card").forEach(card => {
 let title = card.querySelector(".title").value.toLowerCase();
 
-card.style.display = title.includes(val) ? "block" : "none";
+if (title.includes(val)) {
+    card.style.display = "block";
+    visible = true;
+} else {
+    card.style.display = "none";
+}
 });
+
+document.getElementById("noResults").style.display = visible ? "none" : "block";
 });
 </script>
 
