@@ -1,15 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Notes</title>
-<style>
-body {background:#020617;color:white;text-align:center;font-family:sans-serif;}
-.note-card {margin:20px;padding:20px;background:#111;border-radius:10px;}
-</style>
-</head>
-<body>
+<body style="background:#020617;color:white;text-align:center;">
 
-<h1>Notes</h1>
+<h1>🚀 Notes</h1>
 
 <form action="/create" method="post">
 <button>Create</button>
@@ -18,32 +11,30 @@ body {background:#020617;color:white;text-align:center;font-family:sans-serif;}
 <input id="search" placeholder="Search...">
 
 {% for note in notes %}
-<div class="note-card">
+<div style="background:#111;margin:20px;padding:20px;border-radius:10px;">
 <input value="{{note.title}}" oninput="renameNote({{note.id}}, this.value)">
 <p>{{note.last_updated}}</p>
-
 <a href="/note/{{note.id}}">Open</a>
 
 <form action="/delete/{{note.id}}" method="post">
 <button>Delete</button>
 </form>
-
 </div>
 {% endfor %}
 
 <script>
 function renameNote(id, title) {
 fetch(`/rename/${id}`, {
-method: "POST",
-headers: {"Content-Type": "application/x-www-form-urlencoded"},
-body: `title=${encodeURIComponent(title)}`
+method:"POST",
+headers:{"Content-Type":"application/x-www-form-urlencoded"},
+body:`title=${encodeURIComponent(title)}`
 });
 }
 
-document.getElementById("search").addEventListener("input", function() {
-let val = this.value.toLowerCase();
-document.querySelectorAll(".note-card").forEach(card => {
-card.style.display = card.innerText.toLowerCase().includes(val) ? "block" : "none";
+document.getElementById("search").addEventListener("input", function(){
+let val=this.value.toLowerCase();
+document.querySelectorAll("div").forEach(d=>{
+d.style.display=d.innerText.toLowerCase().includes(val)?"block":"none";
 });
 });
 </script>

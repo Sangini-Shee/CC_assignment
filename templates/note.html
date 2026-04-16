@@ -1,47 +1,50 @@
 <!DOCTYPE html>
 <html>
-<body style="background:#020617;color:white;text-align:center">
+<body style="background:#020617;color:white;text-align:center;">
 
 <h2>Editor</h2>
 
 <input id="title">
 
-<textarea id="editor" style="width:80%;height:300px;"></textarea>
+<br><br>
+
+<textarea id="editor" style="width:70%;height:400px;"></textarea>
 
 <br><br>
+
 <a id="download">Download</a>
 
 <script>
 const noteId = {{note_id}};
-let lastContent = "";
+let lastContent="";
 
-document.getElementById("download").href = `/export/${noteId}`;
+document.getElementById("download").href=`/export/${noteId}`;
 
-setInterval(() => {
+setInterval(()=>{
 fetch(`/get_note/${noteId}`)
-.then(res => res.json())
-.then(data => {
-if (data.content !== lastContent) {
-document.getElementById("editor").value = data.content;
-document.getElementById("title").value = data.title;
-lastContent = data.content;
+.then(res=>res.json())
+.then(data=>{
+if(data.content!==lastContent){
+editor.value=data.content;
+title.value=data.title;
+lastContent=data.content;
 }
 });
-}, 2000);
+},2000);
 
-document.getElementById("editor").addEventListener("input", () => {
-fetch(`/update_note/${noteId}`, {
-method: "POST",
-headers: {"Content-Type": "application/x-www-form-urlencoded"},
-body: `content=${encodeURIComponent(editor.value)}`
+editor.addEventListener("input",()=>{
+fetch(`/update_note/${noteId}`,{
+method:"POST",
+headers:{"Content-Type":"application/x-www-form-urlencoded"},
+body:`content=${encodeURIComponent(editor.value)}`
 });
 });
 
-document.getElementById("title").addEventListener("input", () => {
-fetch(`/rename/${noteId}`, {
-method: "POST",
-headers: {"Content-Type": "application/x-www-form-urlencoded"},
-body: `title=${encodeURIComponent(title.value)}`
+title.addEventListener("input",()=>{
+fetch(`/rename/${noteId}`,{
+method:"POST",
+headers:{"Content-Type":"application/x-www-form-urlencoded"},
+body:`title=${encodeURIComponent(title.value)}`
 });
 });
 </script>
