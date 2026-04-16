@@ -37,7 +37,7 @@ def init_db():
 
 init_db()
 
-# -------- AUTH --------
+# AUTH
 
 @app.route('/signup', methods=['GET','POST'])
 def signup():
@@ -71,7 +71,7 @@ def logout():
     session.clear()
     return redirect('/login')
 
-# -------- NOTES --------
+# NOTES
 
 @app.route('/')
 def index():
@@ -138,7 +138,7 @@ def delete(note_id):
     conn.close()
     return redirect('/')
 
-# -------- EXPORT --------
+# EXPORT
 
 @app.route('/export/<int:note_id>')
 def export(note_id):
@@ -152,7 +152,7 @@ def export(note_id):
         mimetype="text/plain",
         headers={"Content-Disposition": f"attachment;filename=note_{note_id}.txt"})
 
-# -------- RUN --------
+# RUN
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

@@ -1,151 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Notes</title>
-
 <style>
 body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at top, #0f172a, #020617);
-    color: white;
+    background:#020617;
+    color:white;
+    font-family:sans-serif;
+    margin:0;
 }
 
-/* HEADER */
 .header {
-    text-align: center;
-    padding: 30px;
+    text-align:center;
+    padding:30px;
 }
 
-.create-btn {
-    background: #38bdf8;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.create-btn:hover {
-    transform: scale(1.05);
-    background: #0ea5e9;
-}
-
-.search {
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    width: 250px;
-}
-
-/* GRID */
-.container {
-    display: flex;
-    justify-content: center;
-}
-
-.notes-grid {
-    width: 80%;
-    max-width: 800px;
-}
-
-/* NOTE CARD */
 .note-card {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    margin: 20px;
-    padding: 20px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-    transition: 0.3s;
+    background:#111;
+    margin:20px auto;
+    padding:20px;
+    width:60%;
+    border-radius:10px;
+    text-align:center;
 }
-
-.note-card:hover {
-    transform: translateY(-5px);
-}
-
-/* INPUT */
-.title {
-    padding: 8px;
-    border-radius: 8px;
-    border: none;
-    width: 200px;
-}
-
-/* BUTTONS */
-.open {
-    color: #38bdf8;
-    text-decoration: none;
-    display: block;
-    margin-top: 10px;
-}
-
-.delete {
-    background: red;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    color: white;
-    margin-top: 10px;
-    cursor: pointer;
-}
-
 </style>
 </head>
 
 <body>
 
 <div class="header">
-    <h1>🚀 Notes</h1>
+<h1>🚀 Notes</h1>
 
-    <form action="/create" method="post">
-        <button class="create-btn">Create Note</button>
-    </form>
+<form action="/create" method="post">
+<button>Create</button>
+</form>
 
-    <input id="search" class="search" placeholder="Search notes...">
+<input id="search" placeholder="Search...">
 </div>
-
-<div class="container">
-<div class="notes-grid">
 
 {% for note in notes %}
 <div class="note-card">
 
-    <input class="title"
-           value="{{note.title}}"
-           oninput="renameNote({{note.id}}, this.value)">
+<input value="{{note.title}}" oninput="renameNote({{note.id}}, this.value)">
+<p>{{note.last_updated}}</p>
 
-    <p>{{note.last_updated}}</p>
+<a href="/note/{{note.id}}">Open</a>
 
-    <a class="open" href="/note/{{note.id}}">Open</a>
-
-    <form action="/delete/{{note.id}}" method="post">
-        <button class="delete">Delete</button>
-    </form>
+<form action="/delete/{{note.id}}" method="post">
+<button>Delete</button>
+</form>
 
 </div>
 {% endfor %}
 
-</div>
-</div>
-
 <script>
 function renameNote(id, title) {
-    fetch(`/rename/${id}`, {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: `title=${encodeURIComponent(title)}`
-    });
+fetch(`/rename/${id}`, {
+method:"POST",
+headers:{"Content-Type":"application/x-www-form-urlencoded"},
+body:`title=${encodeURIComponent(title)}`
+});
 }
 
+// ✅ FIXED SEARCH
 document.getElementById("search").addEventListener("input", function(){
-    let val = this.value.toLowerCase();
-    document.querySelectorAll(".note-card").forEach(card=>{
-        card.style.display = card.innerText.toLowerCase().includes(val) ? "block" : "none";
-    });
+let val = this.value.toLowerCase();
+
+document.querySelectorAll(".note-card").forEach(card => {
+let text = card.innerText.toLowerCase();
+
+card.style.display = text.includes(val) ? "block" : "none";
+});
 });
 </script>
 
