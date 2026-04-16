@@ -1,153 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Collaborative Notes</title>
-
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: radial-gradient(circle at top, #0f172a, #020617);
-            color: white;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 36px;
-        }
-
-        .top {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .create-btn {
-            background: #38bdf8;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 8px;
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .create-btn:hover {
-            transform: scale(1.05);
-            background: #0ea5e9;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            margin-top: 40px;
-        }
-
-        .notes-grid {
-            width: 80%;
-            max-width: 900px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .note-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            transition: 0.3s;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
-        }
-
-        .note-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .title-input {
-            width: 100%;
-            padding: 8px;
-            border-radius: 8px;
-            border: none;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .time {
-            font-size: 13px;
-            color: #cbd5e1;
-            margin-bottom: 15px;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .open {
-            color: #38bdf8;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .delete-btn {
-            background: red;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 6px;
-            color: white;
-            cursor: pointer;
-        }
-
-    </style>
+<title>Notes</title>
+<style>
+body {background:#020617;color:white;text-align:center;font-family:sans-serif;}
+.note-card {margin:20px;padding:20px;background:#111;border-radius:10px;}
+</style>
 </head>
-
 <body>
 
-<h1>🚀 Collaborative Notes</h1>
+<h1>Notes</h1>
 
-<div class="top">
-    <form action="/create" method="post">
-        <button class="create-btn">Create New Note</button>
-    </form>
+<form action="/create" method="post">
+<button>Create</button>
+</form>
+
+<input id="search" placeholder="Search...">
+
+{% for note in notes %}
+<div class="note-card">
+<input value="{{note.title}}" oninput="renameNote({{note.id}}, this.value)">
+<p>{{note.last_updated}}</p>
+
+<a href="/note/{{note.id}}">Open</a>
+
+<form action="/delete/{{note.id}}" method="post">
+<button>Delete</button>
+</form>
+
 </div>
-
-<div class="container">
-    <div class="notes-grid">
-
-        {% for note in notes %}
-        <div class="note-card">
-
-            <input class="title-input"
-                   value="{{note.title}}"
-                   oninput="renameNote({{note.id}}, this.value)">
-
-            <div class="time">{{note.last_updated}}</div>
-
-            <div class="actions">
-                <a class="open" href="/note/{{note.id}}">Open</a>
-
-                <form action="/delete/{{note.id}}" method="post">
-                    <button class="delete-btn">Delete</button>
-                </form>
-            </div>
-
-        </div>
-        {% endfor %}
-
-    </div>
-</div>
+{% endfor %}
 
 <script>
 function renameNote(id, title) {
-    fetch(`/rename/${id}`, {
-        method: "POST",
-        headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: `title=${encodeURIComponent(title)}`
-    });
+fetch(`/rename/${id}`, {
+method: "POST",
+headers: {"Content-Type": "application/x-www-form-urlencoded"},
+body: `title=${encodeURIComponent(title)}`
+});
 }
+
+document.getElementById("search").addEventListener("input", function() {
+let val = this.value.toLowerCase();
+document.querySelectorAll(".note-card").forEach(card => {
+card.style.display = card.innerText.toLowerCase().includes(val) ? "block" : "none";
+});
+});
 </script>
 
 </body>
